@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoulder Outcome Measures</title>
@@ -10,6 +12,7 @@
             --text-color: #333;
             --success-color: #28a745;
             --fail-color: #dc3545;
+            --copy-color: #17a2b8; /* Cyan for copy button */
         }
 
         body {
@@ -106,6 +109,15 @@
             padding-bottom: 15px;
         }
 
+        .instruction-text {
+            font-size: 0.95em;
+            color: #555;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid var(--primary-color);
+        }
+
         .options-grid { display: grid; gap: 10px; }
 
         .option-btn {
@@ -127,6 +139,7 @@
         .score-badge {
             background: #eee; padding: 2px 8px;
             border-radius: 10px; font-size: 0.85em; color: #333;
+            min-width: 25px; text-align: center;
         }
         
         .option-btn.selected .score-badge {
@@ -158,13 +171,30 @@
         .score-pass { color: #48bb78; } /* Green */
         .score-fail { color: #f56565; } /* Red */
 
-        .print-btn {
-            display: block; width: 100%; padding: 15px;
-            background-color: var(--success-color);
-            color: white; border: none; border-radius: 6px;
-            font-size: 1.1em; cursor: pointer; margin-top: 20px;
+        /* Action Buttons Container */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
         }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .print-btn { background-color: var(--success-color); }
         .print-btn:hover { background-color: #218838; }
+
+        .copy-btn { background-color: var(--copy-color); }
+        .copy-btn:hover { background-color: #138496; }
 
         .input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
         .input-row input { width: 80px; }
@@ -192,10 +222,35 @@
         }
         .lang-tc { display: none; } /* Hidden by default */
 
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 200;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
-            .tabs, .print-btn, .lang-toggle-container { display: none; }
+            .tabs, .action-buttons, .lang-toggle-container { display: none; }
             .tab-content { display: block !important; margin-bottom: 30px; page-break-inside: avoid; border-bottom: 2px solid black; }
             .total-score-box { position: static; color: black; background: white; border: 2px solid black; box-shadow: none; margin-top: 10px; padding: 10px; }
             .score-pass, .score-fail { color: black; } /* Remove color for print */
@@ -217,7 +272,7 @@
     <div class="header-container">
         <div class="header-row-1">PWH Physio Sports team</div>
         <div class="header-row-2">Shoulder outcome measures</div>
-        <div class="header-row-3">UCLA &amp; Constant-Murley</div>
+        <div class="header-row-3">UCLA & Constant-Murley</div>
     </div>
     
     <div class="patient-info">
@@ -273,7 +328,7 @@
                 <button class="option-btn" onclick="selectOption('ucla-q2', 1)">Unable to use limb <span class="score-badge">1</span></button>
                 <button class="option-btn" onclick="selectOption('ucla-q2', 2)">Only light activities possible <span class="score-badge">2</span></button>
                 <button class="option-btn" onclick="selectOption('ucla-q2', 4)">Able to do light housework or most activities of daily living <span class="score-badge">4</span></button>
-                <button class="option-btn" onclick="selectOption('ucla-q2', 6)">Most housework, shopping, driving, hair/dressing possible <span class="score-badge">6</span></button>
+                <button class="option-btn" onclick="selectOption('ucla-q2', 6)">Most housework, shopping, driving, hair/dressing possible; able to do hair and to dress and undress, including fastening brassiere <span class="score-badge">6</span></button>
                 <button class="option-btn" onclick="selectOption('ucla-q2', 8)">Slight restriction only; able to work above shoulder level <span class="score-badge">8</span></button>
                 <button class="option-btn" onclick="selectOption('ucla-q2', 10)">Normal activities <span class="score-badge">10</span></button>
             </div>
@@ -313,7 +368,7 @@
 
         <div class="total-score-box">
             <div class="score-display">UCLA Total Score: <span id="ucla-total" class="score-fail">0</span> / 35</div>
-            <div class="cutoff-info">Cut-off point: 27 (Score ≥ 27 is Good/Excellent)</div>
+            <div class="cutoff-info">Cut-off point: 27 (Score &ge; 27 is Good/Excellent)</div>
         </div>
     </div>
 
@@ -335,7 +390,7 @@
                 <span class="lang-tc">甲: 疼痛程度</span>
             </label>
             <p>
-                <span class="lang-en">Indicate the highest pain level in the last 24 hours.</span>
+                <span class="lang-en">Indicate the highest pain level you have experienced in your shoulder during ordinary activities within the last 24 hours. To do this, set a mark on the line.</span>
                 <span class="lang-tc">請於下列線上標記出你於最近24小時進行日常活動時所感到肩關節的最高疼痛程度。</span>
             </p>
             <div class="slider-container">
@@ -398,7 +453,7 @@
                 <span class="lang-tc">2. 你的肩關節情況有多影響你的日常活動? (請於下列線上標記)</span>
             </label>
             <p>
-                <span class="lang-en">How much of your normal daily work does your shoulder allow?</span>
+                <span class="lang-en">How much of your normal daily work does your shoulder allow you to perform? (Indicate by setting a mark on the line)</span>
                 <span class="lang-tc"></span>
             </p>
             <div class="slider-container">
@@ -429,7 +484,7 @@
                 <span class="lang-tc">3. 你的肩關節情況有多影響你的正常娛樂/運動? (請於下列線上標記)</span>
             </label>
             <p>
-                <span class="lang-en">How much of your normal recreational activity does your shoulder allow?</span>
+                <span class="lang-en">How much of your normal recreational activity does your shoulder allow you to perform? (Indicate by setting a mark on the line)</span>
                 <span class="lang-tc"></span>
             </p>
             <div class="slider-container">
@@ -456,7 +511,7 @@
         <!-- Q4 HAND POSITION -->
         <div class="question-block" id="cm-q4">
             <label>
-                <span class="lang-en">4. Hand Comfort / Positioning</span>
+                <span class="lang-en">To which level can you use your hand comfortably? (Please check only the most advancement movement)</span>
                 <span class="lang-tc">4. 請選出你於無痛的情況下能夠並最難達到的身體部位。 (只選出下列一個最適合的答案)</span>
             </label>
             <div class="options-grid">
@@ -502,7 +557,11 @@
     <div id="constant-physician" class="tab-content">
         <h2>Constant-Murley Score - Physician Portion (Appendix C)</h2>
 
-        <h3>C. Range of Motion</h3>
+        <h3>C: Movement</h3>
+        <p class="instruction-text">
+            Four different active and pain---free movements of the arm are performed. If the arm can be lifted to 140 degrees with pain and 110 degrees without pain in question 1,2, then a range of motion of 110 degrees is recorded. The tester first shows the desired movement, which the patient then performs. All exercises are done with the test subject standing with their feet pointing directly forwards and a shoulder width apart.<br>
+            1,2. Forward and lateral elevation are recorded with a long---armed goniometer. Only the affected arm performs movements.
+        </p>
         
         <div class="question-block" id="cm-flex">
             <label>1. Forward Flexion (Degrees)</label>
@@ -512,7 +571,7 @@
                 <button class="option-btn" onclick="selectOption('cm-flex', 4)">61-90° <span class="score-badge">4</span></button>
                 <button class="option-btn" onclick="selectOption('cm-flex', 6)">91-120° <span class="score-badge">6</span></button>
                 <button class="option-btn" onclick="selectOption('cm-flex', 8)">121-150° <span class="score-badge">8</span></button>
-                <button class="option-btn" onclick="selectOption('cm-flex', 10)">&gt; 151° <span class="score-badge">10</span></button>
+                <button class="option-btn" onclick="selectOption('cm-flex', 10)">> 151° <span class="score-badge">10</span></button>
             </div>
         </div>
 
@@ -524,12 +583,12 @@
                 <button class="option-btn" onclick="selectOption('cm-abd', 4)">61-90° <span class="score-badge">4</span></button>
                 <button class="option-btn" onclick="selectOption('cm-abd', 6)">91-120° <span class="score-badge">6</span></button>
                 <button class="option-btn" onclick="selectOption('cm-abd', 8)">121-150° <span class="score-badge">8</span></button>
-                <button class="option-btn" onclick="selectOption('cm-abd', 10)">&gt; 151° <span class="score-badge">10</span></button>
+                <button class="option-btn" onclick="selectOption('cm-abd', 10)">> 151° <span class="score-badge">10</span></button>
             </div>
         </div>
 
         <div class="question-block">
-            <label>3. External Rotation (Check all that apply - Max 10)</label>
+            <label>3. External rotation performed without help and the hands should be placed behind and above the head without touching the head. Movements are performed by both arms simultaneously but recorded only for the affected side. The movements must be performed painlessly. Please check all that apply.</label>
             <div class="options-grid">
                 <button class="option-btn multi-select" onclick="toggleMultiOption(this, 2)">Hands behind head, elbows forward <span class="score-badge">+2</span></button>
                 <button class="option-btn multi-select" onclick="toggleMultiOption(this, 2)">Hands behind head, elbows back <span class="score-badge">+2</span></button>
@@ -541,7 +600,7 @@
         </div>
 
         <div class="question-block" id="cm-ir">
-            <label>4. Internal Rotation (Thumb to landmark)</label>
+            <label>Internal rotation is performed without help and the subject should use their thumb to point to the specified anatomic landmarks. Movements are performed only with the affected arm. The movements must be performed painlessly. Please check only the box for the most advanced movement.</label>
             <div class="options-grid">
                 <button class="option-btn" onclick="selectOption('cm-ir', 0)">Lateral aspect of thigh <span class="score-badge">0</span></button>
                 <button class="option-btn" onclick="selectOption('cm-ir', 2)">Behind the buttock <span class="score-badge">2</span></button>
@@ -553,8 +612,10 @@
         </div>
 
         <div class="question-block">
-            <label>D. Strength (Pounds)</label>
-            <p>Score corresponds to force in pounds (Max 25). If kg, multiply by 2.2.</p>
+            <label>D: Strength</label>
+            <p class="instruction-text">
+                Strength is measured with a dynamometer. The test is done with the test subject standing with t heir feet pointing directly forwards and a shoulder width apart. The arm should be abducted 90 degrees in the scapular plane. If the arm cannot be elevated to 90 degrees, a score of 0 points is given. The wrist is pronated so the palm faces down and the elbow is stretched as much as possible. The strap of the dynamometer should be placed around the wrist of the test subject so that it lies over the long head of the ulna. The test subjected is instructed to push maximally upwards for 5 seconds and is given 3 attempts Score corresponds to force in pounds (Max 25). If kg, multiply by 2.2..
+            </p>
             <div class="input-row">
                 <label>Measured Pounds:</label>
                 <input type="number" id="strength-lbs" min="0" max="25" oninput="updateCMScores()">
@@ -566,13 +627,20 @@
             <div>CM Physician Score (ROM + Strength): <span id="cm-physician-total">0</span> / 65</div>
             <hr style="border-color: rgba(255,255,255,0.3); margin: 10px 0;">
             <div class="score-display">TOTAL CONSTANT SCORE: <span id="cm-grand-total" class="score-fail">0</span> / 100</div>
-            <div class="cutoff-info">Cut-off point: 80 (Score ≥ 80 is Satisfactory)</div>
+            <div class="cutoff-info">Cut-off point: 80 (Score &ge; 80 is Satisfactory)</div>
         </div>
     </div>
 
-    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+        <button class="action-btn print-btn" onclick="window.print()">Print / Save as PDF</button>
+        <button class="action-btn copy-btn" onclick="copyToClipboard()">Copy Text for EMR</button>
+    </div>
 
 </div>
+
+<!-- Toast Notification Element -->
+<div id="toast">Text copied to clipboard!</div>
 
 <script>
     // State management
@@ -697,9 +765,52 @@
         }
     }
 
+    function copyToClipboard() {
+        // Gather Info
+        const name = document.getElementById('patientName').value || "N/A";
+        const date = document.getElementById('assessDate').value || "N/A";
+        const dom = document.getElementById('domHand').value;
+        const aff = document.getElementById('affArm').value;
+
+        // UCLA
+        const uclaTotal = document.getElementById('ucla-total').innerText;
+
+        // Constant Calculation
+        const cmPain = scores.cmPatient.pain;
+        const cmADL = scores.cmPatient.sleep + scores.cmPatient.work + scores.cmPatient.rec + scores.cmPatient.hand;
+        const cmROM = scores.cmPhysician.flex + scores.cmPhysician.abd + scores.cmPhysician.er + scores.cmPhysician.ir;
+        const cmStrength = scores.cmPhysician.strength;
+        const cmTotal = document.getElementById('cm-grand-total').innerText;
+
+        const textToCopy = `SHOULDER OUTCOME MEASURES\n` +
+            `Patient: ${name}\n` +
+            `Date: ${date}\n` +
+            `Dominant: ${dom} / Affected: ${aff}\n` +
+            `--------------------------------\n` +
+            `UCLA SHOULDER SCORE: ${uclaTotal}/35\n` +
+            `--------------------------------\n` +
+            `CONSTANT-MURLEY SCORE\n` +
+            `Pain: ${cmPain}/15\n` +
+            `ADL: ${cmADL}/20\n` +
+            `ROM: ${cmROM}/40\n` +
+            `Strength: ${cmStrength}/25\n` +
+            `TOTAL: ${cmTotal}/100`;
+
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            showToast();
+        }, function(err) {
+            alert('Could not copy text automatically. Please check permissions.');
+        });
+    }
+
+    function showToast() {
+        var x = document.getElementById("toast");
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
     document.getElementById('assessDate').valueAsDate = new Date();
 </script>
 
-
-
-</body></html>
+</body>
+</html>
